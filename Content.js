@@ -1,32 +1,48 @@
 const keydownEvent = "keydown";
 
+const htmlElementToRetrieve = "input";
 const passwordFieldType = "password";
 const textFieldType = "text";
 
+// Hotkey combination to toggle between password and text.
+function isHotkeyPressed(event) {
+    return event.ctrlKey && event.altKey && event.key === 'p';
+}
+
+// Switch input type from password to text. Store the original type as metadata 
+// so we can distinguish between elements this application has modifed and native text inputs.
+function toggleToText(field) {
+    field.dataset.originalType = passwordFieldType;
+    field.type = textFieldType;
+}
+
+// Restore temporary text input fields to back to password.
+function restoreToPassword(field) {
+    if (field.dataset.originalType === passwordFieldType) {
+        field.type = passwordFieldType;
+        delete field.dataset.originalType; // Clean up metadata
+    }
+}
+
+// Main function: Toggle all input fields.
+function toggleInputFields() {
+    const inputFields = document.querySelectorAll(htmlElementToRetrieve);
+
+    if (!inputFields) {
+        return;
+    }
+
+    inputFields.forEach(field => {
+        if (field.type === passwordFieldType) {
+            toggleToText(field);
+        } else if (field.type === textFieldType && field.dataset.originalType === passwordFieldType) {
+            restoreToPassword(field);
+        }
+    });
+}
+
 document.addEventListener(keydownEvent, function(event) {
-
-    // Hotkeys to toggle between input types.
-    if (event.ctrlKey && event.altKey && event.key === 'p') {
-
-        // Get all input elements on the page.
-        const inputFields = document.querySelectorAll('input');
-        
-        if(inputFields != null) {
-            inputFields.forEach(field => {
-                
-                // Set input type from password to text.
-                if (field.type === passwordFieldType) {
-                    // Store the original type as metadata so we can distinguish between elements this application modifed and native text inputs.
-                    field.dataset.originalType = field.type;
-                    field.type = textFieldType;
-                }
-                
-                // Set input type from text to password.
-                else if (field.dataset.originalType === passwordFieldType && field.type === textFieldType) {
-                    // Restore the original type
-                    field.type = field.dataset.originalType;
-                }
-            });
-        } 
+    if (isHotkeyPressed(event)) {
+        toggleInputFields();
     }
 });
