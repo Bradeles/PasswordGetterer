@@ -4,6 +4,8 @@ const passwordFieldType = "password";
 const textFieldType = "text";
 
 document.addEventListener(keydownEvent, function(event) {
+
+    // Hotkeys to toggle between input types.
     if (event.ctrlKey && event.altKey && event.key === 'p') {
 
         // Get all input elements on the page.
@@ -11,22 +13,20 @@ document.addEventListener(keydownEvent, function(event) {
         
         if(inputFields != null) {
             inputFields.forEach(field => {
-                if(field.type === passwordFieldType || field.type === textFieldType) {
-    
-                    //Toggle between types, depending on what is on the page currently.
-                    field.type = (field.type === passwordFieldType) ? textFieldType : passwordFieldType;
+                
+                // Set input type from password to text.
+                if (field.type === passwordFieldType) {
+                    // Store the original type as metadata so we can distinguish between elements this application modifed and native text inputs.
+                    field.dataset.originalType = field.type;
+                    field.type = textFieldType;
                 }
-          });
-        }
+                
+                // Set input type from text to password.
+                else if (field.dataset.originalType === passwordFieldType && field.type === textFieldType) {
+                    // Restore the original type
+                    field.type = field.dataset.originalType;
+                }
+            });
+        } 
     }
 });
-
-//   document.addEventListener('keydown', function(event) {
-//     if (event.ctrlKey && event.altKey && event.key === 'p') {
-//       const passwordFields = document.querySelectorAll('input[type="password"], input[type="text"]');
-      
-//       passwordFields.forEach(field => {
-//         field.type = (field.type === "password") ? "text" : "password";
-//       });
-//     }
-//   });
